@@ -1,20 +1,29 @@
-#include <QObject>
-#include <QGamepad>
-#include <QTimer>
-#include <QNetworkAccessManager>
+#ifndef JOYSTICKXINPUT_H
+#define JOYSTICKXINPUT_H
 
-class Joystick : public QObject
+#include <QObject>
+#include <QTimer>
+#include <windows.h>
+#include <Xinput.h>
+
+#pragma comment(lib, "XInput.lib")
+
+class JoystickXInput : public QObject
 {
     Q_OBJECT
+
 public:
-    Joystick(QObject *parent = nullptr);
-    ~Joystick();
+    explicit JoystickXInput(QObject *parent = nullptr);
+    ~JoystickXInput() = default;
+
+signals:
+    void joystickUpdated(float lx, float ly, float rx, float ry, int buttons);
 
 private slots:
-    void envoyerRequete();
+    void updateState();
 
 private:
-    QGamepad *gamepad;
-    QTimer *sendTimer;
-    QNetworkAccessManager *networkManager;
+    QTimer pollTimer;
 };
+
+#endif // JOYSTICKXINPUT_H
