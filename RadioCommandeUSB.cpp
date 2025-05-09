@@ -1,33 +1,29 @@
-#include "radiocommande.h"
+#include "joystickxinput.h"
 #include <QDebug>
-#include <QUrlQuery>
-#include <QNetworkRequest>
 
-Joystick::Joystick(QObject *parent)
-    : QObject(parent),
-      gamepad(new QGamepad(0, this)), // 0 = premier gamepad détecté
-      sendTimer(new QTimer(this)),
-      networkManager(new QNetworkAccessManager(this))
+JoystickXInput::JoystickXInput(QObject *parent)
+    : QObject(parent)
 {
-    connect(sendTimer, &QTimer::timeout, this, &Joystick::envoyerRequete);
-    sendTimer->start(200);
+    connect(&pollTimer, &QTimer::timeout, this, &JoystickXInput::updateState);
+    pollTimer.start(50); // toutes les 50 ms
 }
 
-Joystick::~Joystick() {}
-
-void Joystick::envoyerRequete()
+void JoystickXInput::updateState()
 {
-    QUrl url("http://172.18.58.98:8080/?");
-    QUrlQuery query;
+    XINPUT_STATE state;
+    ZeroMemory(&state, sizeof(XINPUT_STATE));
 
-    query.addQueryItem("gaz", QString::number(-gamepad->axisLeftY(), 'f', 2));
-    query.addQueryItem("lacet", QString::number(gamepad->axisRightX(), 'f', 2));
-    query.addQueryItem("tangage", QString::number(gamepad->axisLeftX(), 'f', 2));
-    query.addQueryItem("roulis", QString::number(gamepad->axisRightY(), 'f', 2));
-    url.setQuery(query);
+    DWORD result = XInputGetState(0, &state); // 0 = première manette
 
-    QNetworkRequest request(url);
-    networkManager->get(request);
+    if (result == ERROR_SUCCESS) {
+        float lx = state.Gamepad.sThumbLX / 32767.0f;
+        float ly = state.Gamepad.sThumbLY / 32767.0f;
+        float rx = state.Gamepad.sThumbRX / 32767.0f;
+        float ry = state.Gamepad.sThumbRY / 32767.0f;
+        int buttons = state.Gamepad.wButtons;
 
-    qDebug() << "Requête envoyée :" << url.toString();
+        emit joystickUpdated(lx, ly, rx, ry, buttons);
+    } else {
+        qWarning() << "Aucune manette détectée.";
+    }
 }
