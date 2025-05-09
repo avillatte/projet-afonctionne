@@ -1,0 +1,4 @@
+JoystickXInput *joystick = new JoystickXInput(this);
+connect(joystick, &JoystickXInput::joystickUpdated, this, [](float lx, float ly, float rx, float ry, int buttons) {
+    qDebug() << "Gauche:" << lx << ly << "Droite:" << rx << ry << "Boutons:" << buttons;
+});
