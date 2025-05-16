@@ -31,8 +31,6 @@ private:
     int lacetValue = 0;
     int tangageValue = 0;
     int roulisValue = 0;
-    bool restartClicked = false;
-    float rthDistance = 0.0f;
 };
 
 #endif // JOYSTICK_H

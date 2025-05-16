@@ -40,16 +40,6 @@ Joystick::~Joystick()
     }
 }
 
-void Joystick::setRestartClicked(bool clicked)
-{
-    restartClicked = clicked;
-}
-
-void Joystick::setRthDistance(float distance)
-{
-    rthDistance = distance;
-}
-
 void Joystick::lireEvenement()
 {
     struct js_event event;
@@ -84,8 +74,6 @@ void Joystick::envoyerRequete()
     query.addQueryItem("lacet", QString::number(lacetValue / 300.0f, 'f', 2));
     query.addQueryItem("tangage", QString::number(tangageValue / 300.0f, 'f', 2));
     query.addQueryItem("roulis", QString::number(roulisValue / 300.0f, 'f', 2));
-    query.addQueryItem("restart", restartClicked ? "1" : "0");
-    query.addQueryItem("rth_distance", QString::number(rthDistance, 'f', 2));
     url.setQuery(query);
 
     QNetworkRequest request(url);
